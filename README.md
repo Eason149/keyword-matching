@@ -2,6 +2,19 @@
 
 Yi's lexical baselines for comparing the team's dataset-discovery method. This repository implements two established reference systems, not the team method.
 
+## Fixed and live search modes
+
+Fixed mode remains the reproducible benchmark. Live mode discovers public Hugging Face name-search candidates and reranks their metadata and cards. After activating the environment:
+
+```bash
+python baseline.py online --query "medical question answering" --top-k 5
+python baseline.py online --query "Find datasets to improve the model at counting and probability problems." --candidates 50 --snapshot-dir results/live/counting_demo
+python baseline.py replay --snapshot results/live/counting_demo --method keyword
+python baseline.py replay --snapshot results/live/counting_demo --method bm25_document
+```
+
+Use a new snapshot directory for each capture. Results include scores, descriptions and clickable URLs. `--json` produces JSONL. Replay is offline and gives both methods the same candidate pool. Live mode does not search all Hub dataset-card text and does not compute accuracy; see [LIVE_SEARCH.md](LIVE_SEARCH.md) for the scope, snapshot files and error handling. Run `python test_live_search.py` for offline integration checks. No additional dependencies are required.
+
 ## Quick start
 
 ```bash

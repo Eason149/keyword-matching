@@ -1,4 +1,4 @@
-"""Offline lexical baselines and a common evaluator for team retrieval runs."""
+"""Fixed-corpus baselines, live HF search, and a common team-run evaluator."""
 import argparse
 import csv
 import hashlib
@@ -93,7 +93,15 @@ def main():
     p=sub.add_parser('search');p.add_argument('--corpus',type=Path,required=True)
     p.add_argument('--query',required=True);p.add_argument('--method',choices=['keyword','bm25_document'],default='bm25_document')
     p.add_argument('--top-k',type=int,default=5)
+    from live_search import add_commands, validate_args, execute
+    add_commands(sub)
     args=parser.parse_args()
+    if args.action in ('online','replay'):
+        validate_args(parser,args)
+        try:
+            raise SystemExit(execute(args))
+        except (OSError,ValueError,KeyError) as error:
+            parser.exit(2,f'Error: {error}\n')
     if args.action=='search':
         if args.top_k<1: parser.error('top-k must be positive')
         index=SparseIndex(read_rows(args.corpus),fields=FIELDS)
